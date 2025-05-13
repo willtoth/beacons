@@ -212,7 +212,20 @@ if search_query:
     table_df = table_df[mask]
 
 # Display the filtered dataframe with hidden index
-st.dataframe(table_df, hide_index=True)
+selected = st.dataframe(table_df, hide_index=True, on_select='rerun', selection_mode="single-row")
+
+if len(selected['selection']['rows']) > 0:
+    selected_row = selected['selection']['rows'][0]
+    # Get the value in the URL column for the selected row
+    url = filtered_df.iloc[selected_row]['URL']
+    sender = filtered_df.iloc[selected_row]['Beacon Sender']
+
+    st.write(sender)
+
+    if url:
+        st.video(url)
+    else:
+        st.write("No URL found for this row.")
 
 # Footer
 st.markdown("---")
