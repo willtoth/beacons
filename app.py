@@ -74,6 +74,9 @@ if selected_versions:
 # Convert Time Log to seconds for calculations
 filtered_df['Time_Log_Seconds'] = filtered_df['Time Log'].apply(convert_time_to_seconds)
 
+if filtered_df.empty or not 'Time_Log_Seconds' in filtered_df.columns:
+    st.stop()
+
 # Calculate statistics
 time_stats = {}
 if not filtered_df.empty and 'Time_Log_Seconds' in filtered_df.columns:
@@ -122,6 +125,38 @@ with col5:
         value=format_seconds_to_time(time_stats.get("Max"))
     )
 
+# Show the Time Log distribution histogram
+time_log_values = filtered_df['Time_Log_Seconds'].dropna()
+if not time_log_values.empty:
+    import plotly.express as px
+    import numpy as np
+    # Compute histogram bin edges
+    nbins = 50
+    counts, bin_edges = np.histogram(time_log_values, bins=nbins)
+    # Format bin edges as mm:ss
+    def sec_to_mmss(sec):
+        m = int(sec // 60)
+        s = int(sec % 60)
+        return f"{m}:{s:02d}"
+    tickvals = [(bin_edges[i] + bin_edges[i+1]) / 2 for i in range(len(bin_edges)-1)]
+    ticktext = [sec_to_mmss(edge) for edge in bin_edges]
+    fig = px.histogram(
+        x=time_log_values,
+        nbins=nbins,
+        labels={"x": "Time Log (mm:ss)", "y": "Count"},
+        title="Distribution",
+        color_discrete_sequence=["#4e79a7"]
+    )
+    fig.update_layout(
+        bargap=0.05, title_x=0.5,
+        xaxis = dict(
+            tickmode = 'array',
+            tickvals = bin_edges[::max(1, len(bin_edges)//10)],
+            ticktext = [sec_to_mmss(edge) for edge in bin_edges][::max(1, len(bin_edges)//10)]
+        )
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
 
 # Visualization section
 st.subheader("Data Visualizations")
@@ -159,6 +194,7 @@ for idx, (col_name, chart_title) in enumerate(chart_columns):
                 hole=0.3
             )
         chart_cols[idx].plotly_chart(fig, use_container_width=True)
+
 
 # --- Data Table Section ---
 
