@@ -36,6 +36,34 @@ except Exception as e:
 st.title("Beacon Data Visualization")
 st.write("This app visualizes data from the Google Sheet.")
 
+with st.expander("Legend & Column Descriptions", expanded=False):
+    st.markdown("""
+**Beacon Sender**: The player who created the beacon or requested help in chat.
+
+**Time Log (in minutes):**
+- For Rescue Beacons, this is how long it takes me to revive an incapacitated player starting the moment I accept the beacon.
+- For Personal Transport Beacons, this is typically the amount of time it takes me to get the player on board my ship. Removed in 3.22.1
+- For Medical Assistance Beacons, I clock the time it takes me to reach the player. Removed in 3.22.1
+
+**Was the beacon a trap/bait/grief?**
+A simple yes or no to denote whether the request for aid was genuine.
+
+**Version:** The version of the game.
+
+**Was the beacon cancelled?**
+Provides a basic explanation for beacons that are withdrawn or failed. Players voluntarily cancel beacons, involuntarily disconnect, get killed completely, etc. I also crash into the ground from time to time.
+
+**Location:** Usually the main body/area the beacon originates from. If they’re at a bunker on Yela, then I list it as Yela. If they’re in space without a ship, space. If they’re inside a ship in space, Space, inside ship. That sort of thing.
+
+**Mission:** As part of the Location data, if they’re on a specific mission that I am aware of I try to record it. NA (Not Applicable) is the same as either them not doing anything specific or me not knowing. If I put Derelict Outpost, I don’t know what they’re specifically doing there.
+
+**Bug?:** Did a bug cause or contribute to the player’s need for help?
+
+**AI/PVP/NA:** Was the player’s situation caused by the AI or by another player? Or was the situation caused by other circumstances such as player error or environmental hazards (NA)?
+
+**Calculate?:** In order to accurately represent the time it takes me to respond to beacons there are responses I do not include in the calculation. Examples would be cancelled beacons, attempts where I die before reaching them, cases of extreme bugs or server issues, etc.
+    """)
+
 # Process the Time Log column to calculate statistics
 def convert_time_to_seconds(time_str):
     if pd.isna(time_str) or time_str == "":
