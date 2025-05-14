@@ -25,6 +25,18 @@ def load_data():
     )
     return sheet_data
 
+# Read the data (only columns A through M)
+@st.cache_data(ttl=600)  # Cache data for 10 minutes
+def self_reported_total_rescues():
+    sheet_data = conn.read(
+        worksheet="Beacon Tracker - AAK625",
+        usecols=list(range(28)),
+        ttl=600
+    )
+    return sheet_data.iloc[1, 20]
+
+
+
 # Load the data
 try:
     df = load_data()
@@ -118,7 +130,25 @@ if not filtered_df.empty and 'Time_Log_Seconds' in filtered_df.columns:
             "Max": valid_times.max()
         }
 
-# Display statistics in columns with a nice format
+# ---
+
+st.subheader("Total Rescues")
+
+total_rescues = filtered_df['Beacon Sender'].notnull().sum()
+col1, col2 = st.columns(2)
+
+with col1:
+    st.metric(
+        label="Total Rescues Logged",
+        value=total_rescues
+    )
+
+with col2:
+    st.metric(
+        label="Total Rescues",
+        value=self_reported_total_rescues()
+    )
+
 st.subheader("Time Log Statistics")
 
 col1, col2, col3, col4, col5 = st.columns(5)
